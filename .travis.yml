@@ -9,7 +9,6 @@ install:
 
 script:
   - |
-    cd Source/Otc.Streaming
     dotnet build -c Release
     dotnet test
   
@@ -17,7 +16,6 @@ deploy:
   provider: script
   script:
     - |
-      cd Source/Otc.Streaming
       ARTIFACTS_FOLDER=./artifacts
 
       if [ ! -d $ARTIFACTS_FOLDER ]
