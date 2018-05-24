@@ -22,7 +22,7 @@ deploy:
   script:
     - |
       ARTIFACTS_FOLDER=./artifacts
-      cd $CLASS_LIBRARY_PROJ_DIR
+      cd $CLASS_LIBRARY_PROJ_DIR;
       dotnet build -c Release    
 
       if [ ! -d $ARTIFACTS_FOLDER ]
