@@ -2,18 +2,21 @@ language: csharp
 mono: none
 dotnet: 2.0.3
 
-install: >
+install:
+  - |
   cd Source/Otc.Streaming
   dotnet restore
 
-script: >
+script:
+  - |
   cd Source/Otc.Streaming
   dotnet build -c Release
   dotnet test
   
 deploy:
   provider: script
-  script: >
+  script:
+    - |
     cd Source/Otc.Streaming
     ARTIFACTS_FOLDER=./artifacts
 
