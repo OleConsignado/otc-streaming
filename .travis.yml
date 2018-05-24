@@ -2,20 +2,28 @@ language: csharp
 mono: none
 dotnet: 2.0.3
 
+before_install:
+  - |
+    export CLASS_LIBRARY_PROJ_DIR=$TRAVIS_BUILD_DIR/Source/Otc.Streaming
+    export TEST_PROJ_DIR=$TRAVIS_BUILD_DIR/Source/Otc.Streaming.Tests
 install:
   - |
-    cd Source
+    cd $CLASS_LIBRARY_PROJ_DIR
     dotnet restore
 
 script:
   - |
+    cd $CLASS_LIBRARY_PROJ_DIR
     dotnet build -c Release
+    cd $TEST_PROJ_DIR
+    dotnet build -c Debug
     dotnet test
   
 deploy:
   provider: script
   script:
     - |
+      cd $CLASS_LIBRARY_PROJ_DIR
       ARTIFACTS_FOLDER=./artifacts
 
       if [ ! -d $ARTIFACTS_FOLDER ]
