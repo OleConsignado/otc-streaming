@@ -4,7 +4,7 @@ dotnet: 2.0.3
 
 install:
   - |
-    cd Source/Otc.Streaming
+    cd Source
     dotnet restore
 
 script:
