@@ -13,8 +13,6 @@ install:
 
 script:
   - |
-    cd $CLASS_LIBRARY_PROJ_DIR
-    dotnet build -c Release
     cd $TEST_PROJ_DIR
     dotnet build -c Debug
     dotnet test
@@ -24,6 +22,7 @@ deploy:
   script:
     - |
       cd $CLASS_LIBRARY_PROJ_DIR
+      dotnet build -c Release
       ARTIFACTS_FOLDER=./artifacts
 
       if [ ! -d $ARTIFACTS_FOLDER ]
