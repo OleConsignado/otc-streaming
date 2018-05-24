@@ -37,7 +37,7 @@ deploy:
       fi
 
       dotnet pack -c Release $SUFFIX_ARG -o $ARTIFACTS_FOLDER
-      dotnet nuget push --api-key $NUGET_API_KEY $ARTIFACTS_FOLDER/*.nupkg --source http://nuget.oleconsignado.com.br/nuget/nuget/ # https://api.nuget.org/v3/index.json
+      dotnet nuget push --api-key $NUGET_API_KEY $ARTIFACTS_FOLDER/*.nupkg --source $NUGET_ENDPOINT # https://api.nuget.org/v3/index.json
 
       rm -Rf $ARTIFACTS_FOLDER  
   on:
