@@ -54,32 +54,32 @@ namespace Otc.Streaming
         /// <inheritdoc />
         public override int Read(byte[] buffer, int offset, int count)
         {
+            int bytesRead;
+
             if (ShouldHandleAsRegularStream())
             {
-                return sourceStream.Read(buffer, offset, count);
+                bytesRead = sourceStream.Read(buffer, offset, count);
             }
-
-            int i = 0;
-
-            while (i < count && peekBufferPosition < sourceStream.Position && peekBufferPosition < peekBytesRead)
+            else
             {
-                buffer[offset + i] = peekBuffer[peekBufferPosition];
-                peekBufferPosition++;
-                i++;
-            }
+                bytesRead = 0;
 
-            if (i == count) // a quantidade solicitada foi copiada a partir do peekBuffer, mas ainda ha dados no peekBuffer para ser lido
-            {
-                return i;
-            }
+                while (bytesRead < count && peekBufferPosition < sourceStream.Position
+                    && peekBufferPosition < peekBytesRead)
+                {
+                    buffer[offset + bytesRead] = peekBuffer[peekBufferPosition];
+                    peekBufferPosition++;
+                    bytesRead++;
+                }
 
-            if (peekBufferPosition == sourceStream.Position) // o peekBuffer foi lido por completo
-            {
-                peekBuffer = null;
-                return sourceStream.Read(buffer, offset + i, count - i) + i;
+                if (peekBufferPosition == sourceStream.Position) // o peekBuffer foi lido por completo
+                {
+                    peekBuffer = null;
+                    bytesRead += sourceStream.Read(buffer, offset + bytesRead, count - bytesRead);
+                }
             }
             
-            return i;
+            return bytesRead;
         }
 
         private byte[] peekBuffer;
