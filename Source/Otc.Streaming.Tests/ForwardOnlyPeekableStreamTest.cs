@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -12,13 +13,15 @@ namespace Otc.Streaming.Tests
         [InlineData("abc")]
         public void TestPeek(string data)
         {
-            var sourceStream = new MemoryStream(Encoding.ASCII.GetBytes(data));
-            var peekableStream = new ForwardOnlyPeekableStream(sourceStream);
-            int peekSize = 256;
-            var peekedBytes = peekableStream.Peek(peekSize);
-            var peekedString = Encoding.ASCII.GetString(peekedBytes);
-            var testData = data.Length > peekSize ? data.Substring(0, peekSize) : data;
-            Assert.Equal(testData, peekedString);
+            using (var sourceStream = new MemoryStream(Encoding.ASCII.GetBytes(data)))
+            using (var peekableStream = new ForwardOnlyPeekableStream(sourceStream))
+            {
+                int peekSize = 256;
+                var peekedBytes = peekableStream.Peek(peekSize);
+                var peekedString = Encoding.ASCII.GetString(peekedBytes);
+                var testData = data.Length > peekSize ? data.Substring(0, peekSize) : data;
+                Assert.Equal(testData, peekedString);
+            }
         }
 
         [Theory]
@@ -37,31 +40,66 @@ namespace Otc.Streaming.Tests
                 data[i] = (byte)i;
             }
 
-            var sourceStream = new MemoryStream(data);
-            var peekableStream = new ForwardOnlyPeekableStream(sourceStream);
-            var peekedBytes = peekableStream.Peek(peekSize);
-
-            for (int i = 0; i < peekedBytes.Length; i++)
+            using (var sourceStream = new MemoryStream(data))
+            using (var peekableStream = new ForwardOnlyPeekableStream(sourceStream))
             {
-                Assert.Equal((byte)i, peekedBytes[i]);
-            }
+                var peekedBytes = peekableStream.Peek(peekSize);
 
-            var buffer = new byte[bufferSize];
-            int readBytes;
-            var testList = new List<byte>();
-
-            while ((readBytes = peekableStream.Read(buffer, 0, bufferSize)) > 0)
-            {
-                for (int i = 0; i < readBytes; i++)
+                for (int i = 0; i < peekedBytes.Length; i++)
                 {
-                    testList.Add(buffer[i]);
+                    Assert.Equal((byte)i, peekedBytes[i]);
+                }
+
+                var buffer = new byte[bufferSize];
+                int readBytes;
+                var testList = new List<byte>();
+
+                while ((readBytes = peekableStream.Read(buffer, 0, bufferSize)) > 0)
+                {
+                    for (int i = 0; i < readBytes; i++)
+                    {
+                        testList.Add(buffer[i]);
+                    }
+                }
+
+                for (int i = 0; i < dataLength; i++)
+                {
+                    Assert.Equal(data[i], testList[i]);
                 }
             }
+        }
 
-            for (int i = 0; i < dataLength; i++)
+        [Fact]
+        public void TestConsistenceChecks()
+        {
+            var rand = new Random();
+            var buffer = new byte[2048];
+            rand.NextBytes(buffer);
+
+            // Test peek after read (should thow an InvalidOperationException)
+            using (var sourceStream = new MemoryStream(buffer))
+            using (var peekableStream = new ForwardOnlyPeekableStream(sourceStream))
             {
-                Assert.Equal(data[i], testList[i]);
+                peekableStream.Read(new byte[1024], 0, 1024);
+
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    peekableStream.Peek(256);
+                });
             }
+
+            // Test peek twice (should thow an InvalidOperationException)
+            using (var sourceStream = new MemoryStream(buffer))
+            using (var peekableStream = new ForwardOnlyPeekableStream(sourceStream))
+            {
+                peekableStream.Peek(256);
+
+                Assert.Throws<InvalidOperationException>(() =>
+                {
+                    peekableStream.Peek(256);
+                });
+            }
+
         }
     }
 
