@@ -36,25 +36,18 @@ namespace Otc.Streaming
         /// <inheritdoc />
         public override long Length => sourceStream.Length;
 
-        /// <inheritdoc />
-        public override long Position
-        {
-            get
-            {
-                return ShouldHandleAsRegularStream() ? sourceStream.Position : peekBufferPosition;
-            }
-            set => throw new NotImplementedException();
-        }
-
         private bool ShouldHandleAsRegularStream()
         {
             return !peeked || peekBuffer == null;
         }
 
+        private bool startedReading = false;
+
         /// <inheritdoc />
         public override int Read(byte[] buffer, int offset, int count)
         {
             int bytesRead;
+            startedReading = true;
 
             if (ShouldHandleAsRegularStream())
             {
@@ -64,7 +57,7 @@ namespace Otc.Streaming
             {
                 bytesRead = 0;
 
-                while (bytesRead < count && peekBufferPosition < sourceStream.Position
+                while (bytesRead < count && peekBufferPosition < peekBufferLength
                     && peekBufferPosition < peekBytesRead)
                 {
                     buffer[offset + bytesRead] = peekBuffer[peekBufferPosition];
@@ -72,7 +65,7 @@ namespace Otc.Streaming
                     bytesRead++;
                 }
 
-                if (peekBufferPosition == sourceStream.Position) // o peekBuffer foi lido por completo
+                if (peekBufferPosition == peekBufferLength) // o peekBuffer foi lido por completo
                 {
                     peekBuffer = null;
                     bytesRead += sourceStream.Read(buffer, offset + bytesRead, count - bytesRead);
@@ -89,13 +82,13 @@ namespace Otc.Streaming
         private int peekBytesRead;
 
         /// <summary>
-        /// Peek amount of data (up to maxLength) from the begining of stream
+        /// Peek amount of data (limited to maxLength) from the begining of stream.
         /// </summary>
         /// <param name="maxLength">The maxLength to peek</param>
         /// <returns>Byte array with peeked data</returns>
         public byte[] Peek(int maxLength)
         {
-            if (Position > 0)
+            if (startedReading)
             {
                 throw new InvalidOperationException("Could not peek stream because it has ever started reading.");
             }
@@ -130,37 +123,47 @@ namespace Otc.Streaming
             base.Dispose(disposing);
         }
 
-        #region [ NotImplemented ]
+        #region [ Not Supported ]
+
         /// <summary>
-        /// NotImplemented
+        /// Not Supported
+        /// </summary>
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Not Supported
         /// </summary>
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         /// <summary>
-        /// NotImplemented
+        /// Not Supported
         /// </summary>
         public override void SetLength(long value)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         /// <summary>
-        /// NotImplemented
+        /// Not Supported
         /// </summary>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         /// <summary>
-        /// NotImplemented
+        /// Not Supported
         /// </summary>
         public override void Flush()
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
         #endregion
     }
