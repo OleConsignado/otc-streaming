@@ -2,45 +2,17 @@ language: csharp
 mono: none
 dotnet: 2.0.3
 
-before_install:
-  - |
-    export CLASS_LIBRARY_PROJ_DIR=$TRAVIS_BUILD_DIR/Source/Otc.Streaming
-    export TEST_PROJ_DIR=$TRAVIS_BUILD_DIR/Source/Otc.Streaming.Tests
-install:
-  - |
-    cd $CLASS_LIBRARY_PROJ_DIR
-    dotnet restore
+install: 
+- ./ci.sh install
 
 script:
-  - |
-    cd $TEST_PROJ_DIR
-    dotnet build -c Debug
-    dotnet test
-  
+- ./ci.sh build
+- ./ci.sh test
+
 deploy:
   provider: script
-  skip_cleanup: true
-  script:
-    - |
-      ARTIFACTS_FOLDER=./artifacts
-      cd $CLASS_LIBRARY_PROJ_DIR;
-      dotnet build -c Release    
-
-      if [ ! -d $ARTIFACTS_FOLDER ]
-      then
-        mkdir $ARTIFACTS_FOLDER
-      fi
-
-      if echo $TRAVIS_BRANCH | egrep -i 'alpha|beta' > /dev/null 2>&1 #[[ ${TRAVIS_BRANCH^^} = *"ALPHA"* ]] || [[ ${TRAVIS_BRANCH^^} = *"BETA"* ]]
-      then
-        SUFFIX=$(echo $TRAVIS_BRANCH-build$TRAVIS_BUILD_NUMBER | sed 's/[^0-9A-Za-z-]//g')
-        SUFFIX_ARG="--version-suffix=$SUFFIX"
-      fi
-
-      dotnet pack -c Release $SUFFIX_ARG -o $ARTIFACTS_FOLDER
-      dotnet nuget push --api-key $NUGET_API_KEY $ARTIFACTS_FOLDER/*.nupkg --source $NUGET_ENDPOINT # https://api.nuget.org/v3/index.json
-
-      rm -Rf $ARTIFACTS_FOLDER  
+  #skip_cleanup: true
+  script: ./ci.sh deploy
   on:
     branch: release  
     tags: true
