@@ -4,6 +4,11 @@
     <TargetFramework>netstandard1.6</TargetFramework>
     <Authors>Ole Consignado</Authors>
     <Company>Ole Consignado</Company>
+    <Description>Forward only, read only stream wrapper with peek capability.
+</Description>
+    <PackageProjectUrl>https://github.com/OleConsignado/otc-streaming</PackageProjectUrl>
+    <Copyright>Ole Consignado (c) 2018</Copyright>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
