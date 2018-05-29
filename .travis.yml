@@ -3,16 +3,16 @@ mono: none
 dotnet: 2.0.3
 
 install: 
-- ./ci.sh install
+- ./cicd.sh install
 
 script:
-- ./ci.sh build
-- ./ci.sh test
+- ./cicd.sh build
+- ./cicd.sh test
 
 deploy:
   provider: script
   #skip_cleanup: true
-  script: ./ci.sh deploy
+  script: ./cicd.sh deploy
   on:
     branch: release  
     tags: true
