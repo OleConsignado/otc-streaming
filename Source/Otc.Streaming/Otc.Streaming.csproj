@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <Authors>Matheus Neder &lt;matheusneder@gmail.com&gt;</Authors>
+    <Authors>Ole Consignado</Authors>
     <Company>Ole Consignado</Company>
   </PropertyGroup>
 
