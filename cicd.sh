@@ -2,7 +2,7 @@
 
 set -e
 
-CICD_COMMON_VERSION="v1.0"
+CICD_COMMON_VERSION="v2.0"
 
 export CLASS_LIBRARY_PROJ_DIR=Source/Otc.Streaming
 export TEST_PROJ_DIR=Source/Otc.Streaming.Tests
